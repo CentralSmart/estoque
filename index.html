@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estoque</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #232323;
+    --border: #2e2e2e;
+    --accent: #e8f542;
+    --accent2: #42f5a7;
+    --danger: #f54242;
+    --text: #f0f0f0;
+    --muted: #888;
+    --low: #f5a742;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  .logo span { color: var(--text); }
+
+  .header-actions { display: flex; gap: 10px; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .btn-primary { background: var(--accent); color: #0f0f0f; }
+  .btn-primary:hover { background: #d4e038; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 5px 8px; }
+  .btn-danger:hover { background: rgba(245,66,66,.1); border-color: var(--danger); }
+  .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+  .btn-green { background: var(--accent2); color: #0f0f0f; }
+  .btn-green:hover { background: #2fd490; }
+
+  /* ── Layout ── */
+  .app { display: flex; height: calc(100vh - 73px); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 270px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .lists-container { flex: 1; overflow-y: auto; padding: 10px 0; }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: background .12s;
+    border-left: 3px solid transparent;
+    gap: 8px;
+  }
+  .list-item:hover { background: var(--surface); }
+  .list-item.active {
+    background: var(--surface);
+    border-left-color: var(--accent);
+  }
+
+  .list-item-info { flex: 1; min-width: 0; }
+  .list-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .list-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  .list-badge {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .delete-list-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity .12s, color .12s;
+    flex-shrink: 0;
+  }
+  .list-item:hover .delete-list-btn { opacity: 1; }
+  .delete-list-btn:hover { color: var(--danger); }
+
+  /* ── Main Content ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .main-header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .list-title-area { flex: 1; }
+  .editable-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    background: none;
+    border: none;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+  }
+  .editable-title::placeholder { color: var(--border); }
+
+  .list-updated { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 12px;
+    gap: 8px;
+    transition: border-color .15s;
+  }
+  .search-box:focus-within { border-color: var(--accent); }
+  .search-box input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    padding: 9px 0;
+    outline: none;
+    width: 200px;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-icon { color: var(--muted); font-size: 0.9rem; }
+
+  /* ── Stats Bar ── */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+  }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px 10px 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-right: 20px;
+  }
+  .stat-pill strong {
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .stat-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .stat-dot.ok { background: var(--accent2); }
+  .stat-dot.low { background: var(--low); }
+  .stat-dot.empty { background: var(--danger); }
+
+  /* ── Table Area ── */
+  .table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 32px 32px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  thead tr {
+    border-bottom: 2px solid var(--border);
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  th:hover { color: var(--accent); }
+  th .sort-icon { margin-left: 4px; opacity: .5; }
+
+  td {
+    padding: 12px 12px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:hover td { background: var(--surface); }
+
+  .td-name { font-weight: 500; }
+  .td-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .qty-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qty-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+  }
+  .qty-badge.ok { background: rgba(66,245,167,.12); color: var(--accent2); }
+  .qty-badge.low { background: rgba(245,167,66,.12); color: var(--low); }
+  .qty-badge.empty { background: rgba(245,66,66,.12); color: var(--danger); }
+
+  .qty-edit {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    width: 72px;
+    padding: 3px 8px;
+    text-align: center;
+    transition: border-color .12s;
+    outline: none;
+  }
+  .qty-edit:focus { border-color: var(--accent); background: var(--surface2); }
+
+  .td-unit { color: var(--muted); font-size: 0.8rem; }
+
+  .td-actions { text-align: right; white-space: nowrap; }
+
+  .row-fade-in {
+    animation: rowIn .25s ease;
+  }
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Add Row Form ── */
+  .add-row {
+    display: flex;
+    gap: 10px;
+    padding: 16px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .add-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color .12s;
+  }
+  .add-input:focus { border-color: var(--accent); }
+  .add-input::placeholder { color: var(--muted); }
+  .add-input.wide { flex: 1; min-width: 160px; }
+  .add-input.narrow { width: 90px; }
+  .add-input.tiny { width: 72px; }
+
+  /* ── Empty State ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 3rem; }
+  .empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 2px; color: var(--border); }
+
+  /* ── No list selected ── */
+  .no-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    gap: 16px;
+    color: var(--muted);
+  }
+  .no-list-big { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 4px; color: var(--border); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    width: 380px;
+    animation: fadeScale .2s ease;
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .modal h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 20px; }
+  .modal-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 11px 14px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color .12s;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    display: none;
+    z-index: 999;
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #444; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ESTO<span>QUE</span></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <button class="btn btn-primary" onclick="openNewListModal()">+ Nova Lista</button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Listas</span>
+      <button class="btn btn-ghost btn-sm" onclick="openNewListModal()">+</button>
+    </div>
+    <div class="lists-container" id="listsContainer"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+    <div class="no-list">
+      <div class="no-list-big">📦</div>
+      <p>Selecione ou crie uma lista para começar</p>
+      <button class="btn btn-primary" onclick="openNewListModal()">+ Criar lista</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nova lista -->
+<div class="modal-overlay" id="newListModal">
+  <div class="modal">
+    <h3>Nova Lista</h3>
+    <input class="modal-input" id="newListName" placeholder="Nome da lista…" maxlength="60">
+    <input class="modal-input" id="newListDesc" placeholder="Descrição (opcional)…" maxlength="100">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="createList()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ──
+let state = { lists: [] };
+let activeListId = null;
+let sortCol = null, sortDir = 1;
+let searchQ = '';
+
+// ── Persistence ──
+function save() {
+  localStorage.setItem('estoque_v1', JSON.stringify(state));
+}
+
+function load() {
+  const raw = localStorage.getItem('estoque_v1');
+  if (raw) state = JSON.parse(raw);
+}
+
+// ── ID ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ── List CRUD ──
+function createList() {
+  const name = document.getElementById('newListName').value.trim();
+  if (!name) { document.getElementById('newListName').focus(); return; }
+  const desc = document.getElementById('newListDesc').value.trim();
+  const list = { id: uid(), name, desc, items: [], updatedAt: new Date().toISOString() };
+  state.lists.push(list);
+  save();
+  closeModal();
+  renderSidebar();
+  selectList(list.id);
+  toast('Lista criada!');
+}
+
+function deleteList(id) {
+  if (!confirm('Excluir lista permanentemente?')) return;
+  state.lists = state.lists.filter(l => l.id !== id);
+  save();
+  if (activeListId === id) {
+    activeListId = null;
+    document.getElementById('mainArea').innerHTML = `
+      <div class="no-list">
+        <div class="no-list-big">📦</div>
+        <p>Selecione ou crie uma lista para começar</p>
+        <button class="btn btn-primary" onclick="openNewListModal()">+ Criar lista</button>
+      </div>`;
+  }
+  renderSidebar();
+  toast('Lista excluída');
+}
+
+function selectList(id) {
+  activeListId = id;
+  sortCol = null; sortDir = 1; searchQ = '';
+  renderSidebar();
+  renderMain();
+}
+
+function activeList() { return state.lists.find(l => l.id === activeListId); }
+
+function renameList(id, newName) {
+  const l = state.lists.find(x => x.id === id);
+  if (l) { l.name = newName; l.updatedAt = new Date().toISOString(); save(); renderSidebar(); }
+}
+
+// ── Item CRUD ──
+function addItem() {
+  const list = activeList(); if (!list) return;
+  const name = document.getElementById('ai_name').value.trim();
+  if (!name) { document.getElementById('ai_name').focus(); return; }
+  const item = {
+    id: uid(),
+    name,
+    code: document.getElementById('ai_code').value.trim(),
+    qty: parseFloat(document.getElementById('ai_qty').value) || 0,
+    min: parseFloat(document.getElementById('ai_min').value) || 0,
+    unit: document.getElementById('ai_unit').value.trim() || 'un',
+    note: document.getElementById('ai_note').value.trim(),
+  };
+  list.items.push(item);
+  list.updatedAt = new Date().toISOString();
+  save();
+  // clear
+  ['ai_name','ai_code','ai_qty','ai_min','ai_unit','ai_note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ai_name').focus();
+  renderMain();
+  toast('Item adicionado!');
+}
+
+function deleteItem(itemId) {
+  const list = activeList(); if (!list) return;
+  list.items = list.items.filter(i => i.id !== itemId);
+  list.updatedAt = new Date().toISOString();
+  save();
+  renderMain();
+}
+
+function updateQty(itemId, val) {
+  const list = activeList(); if (!list) return;
+  const item = list.items.find(i => i.id === itemId); if (!item) return;
+  item.qty = parseFloat(val) || 0;
+  list.updatedAt = new Date().toISOString();
+  save();
+  renderStats();
+  updateQtyBadge(itemId, item);
+}
+
+function updateField(itemId, field, val) {
+  const list = activeList(); if (!list) return;
+  const item = list.items.find(i => i.id === itemId); if (!item) return;
+  item[field] = field === 'qty' || field === 'min' ? (parseFloat(val)||0) : val;
+  list.updatedAt = new Date().toISOString();
+  save();
+}
+
+// ── Status ──
+function itemStatus(item) {
+  if (item.qty <= 0) return 'empty';
+  if (item.min > 0 && item.qty <= item.min) return 'low';
+  return 'ok';
+}
+
+// ── Render Sidebar ──
+function renderSidebar() {
+  const c = document.getElementById('listsContainer');
+  if (!state.lists.length) {
+    c.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:.8rem;">Nenhuma lista ainda</div>`;
+    return;
+  }
+  c.innerHTML = state.lists.map(l => `
+    <div class="list-item ${l.id === activeListId ? 'active' : ''}" onclick="selectList('${l.id}')">
+      <div class="list-item-info">
+        <div class="list-name">${esc(l.name)}</div>
+        <div class="list-meta">${l.items.length} iten${l.items.length !== 1 ? 's' : ''}</div>
+      </div>
+      <span class="list-badge">${l.items.length}</span>
+      <button class="delete-list-btn" onclick="event.stopPropagation();deleteList('${l.id}')" title="Excluir lista">✕</button>
+    </div>
+  `).join('');
+}
+
+// ── Render Main ──
+function renderMain() {
+  const list = activeList();
+  if (!list) return;
+  const main = document.getElementById('mainArea');
+
+  const updated = new Date(list.updatedAt).toLocaleString('pt-BR');
+  const stats = calcStats(list);
+
+  let items = [...list.items];
+
+  // filter
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    items = items.filter(i => i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q) || i.note.toLowerCase().includes(q));
+  }
+
+  // sort
+  if (sortCol) {
+    items.sort((a,b) => {
+      let va = a[sortCol], vb = b[sortCol];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      return va < vb ? -sortDir : va > vb ? sortDir : 0;
+    });
+  }
+
+  const rowsHTML = items.length ? items.map(item => {
+    const st = itemStatus(item);
+    return `<tr class="row-fade-in" data-id="${item.id}">
+      <td class="td-name"><input style="background:none;border:none;color:var(--text);font-family:inherit;font-size:.875rem;font-weight:500;width:100%;outline:none;" value="${esc(item.name)}" onblur="updateField('${item.id}','name',this.value)"></td>
+      <td class="td-code"><input style="background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem;width:90px;outline:none;" value="${esc(item.code)}" onblur="updateField('${item.id}','code',this.value)"></td>
+      <td>
+        <div class="qty-cell">
+          <input class="qty-edit" type="number" min="0" value="${item.qty}" id="qb_${item.id}" onblur="updateQty('${item.id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+          <span class="qty-badge ${st}" id="qs_${item.id}">${item.qty} ${esc(item.unit)}</span>
+        </div>
+      </td>
+      <td class="td-unit">
+        <input style="background:none;border:none;color:var(--muted);font-size:.8rem;width:50px;outline:none;" value="${esc(item.unit)}" onblur="updateField('${item.id}','unit',this.value)">
+      </td>
+      <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);">
+        <input style="background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem;width:60px;outline:none;" value="${item.min}" onblur="updateField('${item.id}','min',this.value)" type="number" min="0" title="Mínimo">
+      </td>
+      <td><input style="background:none;border:none;color:var(--muted);font-size:.8rem;width:100%;outline:none;" value="${esc(item.note)}" onblur="updateField('${item.id}','note',this.value)" placeholder="—"></td>
+      <td class="td-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteItem('${item.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">Nenhum item${searchQ ? ' encontrado' : ''}.</td></tr>`;
+
+  main.innerHTML = `
+    <div class="main-header">
+      <div class="list-title-area">
+        <input class="editable-title" value="${esc(list.name)}" placeholder="Nome da lista" onblur="renameList('${list.id}',this.value)" maxlength="60">
+        <div class="list-updated">Atualizado: ${updated}</div>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input placeholder="Buscar item…" value="${esc(searchQ)}" oninput="searchQ=this.value;renderMain()">
+      </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+      ${statsHTML(stats)}
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('name')">Produto <span class="sort-icon">${sortIcon('name')}</span></th>
+            <th onclick="sortBy('code')">Código <span class="sort-icon">${sortIcon('code')}</span></th>
+            <th onclick="sortBy('qty')">Qtd. <span class="sort-icon">${sortIcon('qty')}</span></th>
+            <th>Unid.</th>
+            <th onclick="sortBy('min')">Mínimo <span class="sort-icon">${sortIcon('min')}</span></th>
+            <th>Nota</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">${rowsHTML}</tbody>
+      </table>
+    </div>
+
+    <div class="add-row">
+      <input class="add-input wide" id="ai_name" placeholder="Nome do produto *" onkeydown="if(event.key==='Enter')addItem()">
+      <input class="add-input narrow" id="ai_code" placeholder="Código">
+      <input class="add-input tiny" id="ai_qty" placeholder="Qtd" type="number" min="0">
+      <input class="add-input tiny" id="ai_min" placeholder="Mín" type="number" min="0" title="Quantidade mínima">
+      <input class="add-input" id="ai_unit" placeholder="Unid" style="width:60px">
+      <input class="add-input wide" id="ai_note" placeholder="Nota">
+      <button class="btn btn-green" onclick="addItem()">+ Adicionar</button>
+    </div>
+  `;
+}
+
+function statsHTML(stats) {
+  return `
+    <div class="stat-pill"><span class="stat-dot"></span> Total: <strong>${stats.total}</strong></div>
+    <div class="stat-pill"><span class="stat-dot ok"></span> OK: <strong>${stats.ok}</strong></div>
+    <div class="stat-pill"><span class="stat-dot low"></span> Baixo: <strong>${stats.low}</strong></div>
+    <div class="stat-pill"><span class="stat-dot empty"></span> Zerado: <strong>${stats.empty}</strong></div>
+  `;
+}
+
+function calcStats(list) {
+  let ok=0, low=0, empty=0;
+  list.items.forEach(i => {
+    const s = itemStatus(i);
+    if(s==='ok') ok++; else if(s==='low') low++; else empty++;
+  });
+  return { total: list.items.length, ok, low, empty };
+}
+
+function renderStats() {
+  const list = activeList(); if (!list) return;
+  const sb = document.getElementById('statsBar'); if (!sb) return;
+  sb.innerHTML = statsHTML(calcStats(list));
+}
+
+function updateQtyBadge(itemId, item) {
+  const el = document.getElementById('qs_'+itemId); if (!el) return;
+  const st = itemStatus(item);
+  el.className = 'qty-badge '+st;
+  el.textContent = item.qty + ' ' + item.unit;
+}
+
+// ── Sort ──
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  renderMain();
+}
+
+function sortIcon(col) {
+  if (sortCol !== col) return '↕';
+  return sortDir === 1 ? '↑' : '↓';
+}
+
+// ── Modal ──
+function openNewListModal() {
+  document.getElementById('newListModal').classList.add('open');
+  setTimeout(() => document.getElementById('newListName').focus(), 50);
+}
+function closeModal() {
+  document.getElementById('newListModal').classList.remove('open');
+  document.getElementById('newListName').value = '';
+  document.getElementById('newListDesc').value = '';
+}
+
+document.getElementById('newListModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+document.getElementById('newListName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createList();
+});
+
+// ── Export CSV ──
+function exportCSV() {
+  const list = activeList();
+  if (!list) { toast('Nenhuma lista selecionada', true); return; }
+  const rows = [['Produto','Código','Quantidade','Unidade','Mínimo','Nota','Status']];
+  list.items.forEach(i => {
+    rows.push([i.name, i.code, i.qty, i.unit, i.min, i.note, itemStatus(i)]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = list.name + '.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado!');
+}
+
+// ── Toast ──
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isErr ? 'var(--danger)' : 'var(--accent2)';
+  t.style.color = isErr ? 'var(--danger)' : 'var(--accent2)';
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// ── Escape ──
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Init ──
+load();
+renderSidebar();
+if (state.lists.length) selectList(state.lists[0].id);
+</script>
+</body>
+</html>
