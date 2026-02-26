@@ -15,8 +15,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:15p
 .hdr-r{display:flex;align-items:center;gap:12px;}
 .sync{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--mut);}
 .sdot{width:7px;height:7px;border-radius:50%;background:var(--mut);transition:background .3s;}
-.sdot.ok{background:var(--grn);}.sdot.err{background:var(--red);}.sdot.busy{background:var(--org);animation:p 1s infinite;}
-@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.sdot.ok{background:var(--grn);}.sdot.err{background:var(--red);}.sdot.busy{background:var(--org);animation:pp 1s infinite;}
+@keyframes pp{0%,100%{opacity:1}50%{opacity:.3}}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:500;transition:all .13s;}
 .btn-acc{background:var(--acc);color:#0c0c0c;}.btn-acc:hover{background:#d4e038;}
 .btn-ghost{background:transparent;color:var(--mut);border:1px solid var(--brd);}.btn-ghost:hover{border-color:var(--acc);color:var(--acc);}
@@ -81,7 +81,7 @@ tr.irow:hover td{background:var(--surf);}
 @keyframes tUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:rot .6s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px;}
 .row-in{animation:rIn .2s ease;}@keyframes rIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -129,90 +129,33 @@ tr.irow:hover td{background:var(--surf);}
 <div id="toast"></div>
 
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  NEON — conexão direta via HTTP API
-//  O Neon expõe um endpoint HTTP: https://<host>/sql
-//  que aceita { query, params } e retorna { rows }
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const NEON_HOST = 'ep-super-dream-ac7nenqt-pooler.sa-east-1.aws.neon.tech';
-const NEON_USER = 'neondb_owner';
-const NEON_PASS = 'npg_gOHBXl4eoD3P';
-const NEON_DB   = 'neondb';
-
-const SQL_URL  = `https://${NEON_HOST}/sql`;
-const SQL_AUTH = 'Basic ' + btoa(`${NEON_USER}:${NEON_PASS}`);
-const SQL_CONN = `postgresql://${NEON_USER}:${NEON_PASS}@${NEON_HOST}/${NEON_DB}?sslmode=require`;
-
-async function sql(query, params = []) {
-  setSync('busy');
-  const res = await fetch(SQL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': SQL_AUTH,
-      'Neon-Connection-String': SQL_CONN,
-    },
-    body: JSON.stringify({ query, params }),
-  });
-  if (!res.ok) {
-    const err = await res.text().catch(() => res.statusText);
-    setSync('err');
-    throw new Error(`[${res.status}] ${err}`);
-  }
-  const data = await res.json();
-  setSync('ok');
-  return data.rows ?? [];
-}
-
-async function initDB() {
-  await sql(`
-    CREATE TABLE IF NOT EXISTS estoque (
-      id            SERIAL PRIMARY KEY,
-      titulo_lista  VARCHAR(255) NOT NULL,
-      nome_produto  VARCHAR(255) NOT NULL,
-      quantidade    INTEGER      NOT NULL DEFAULT 0,
-      unidade       VARCHAR(50)           DEFAULT 'un',
-      minimo        INTEGER               DEFAULT 0,
-      codigo        VARCHAR(100)          DEFAULT '',
-      nota          TEXT                  DEFAULT '',
-      criado_em     TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
-      atualizado_em TIMESTAMP             DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-  for (const c of [
-    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS unidade VARCHAR(50) DEFAULT 'un'`,
-    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS minimo INTEGER DEFAULT 0`,
-    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS codigo VARCHAR(100) DEFAULT ''`,
-    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS nota TEXT DEFAULT ''`,
-    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP`,
-  ]) await sql(c).catch(()=>{});
-}
-
-// ━━ STATE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━ ESTADO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let lists=[], active=null, items=[], sCol=null, sDir=1, qSearch='', pollId=null;
 const pending={};
 
 // ━━ SYNC DOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function setSync(s){
   document.getElementById('sdot').className='sdot '+s;
-  document.getElementById('slbl').textContent=
-    s==='ok'?'sincronizado':s==='err'?'erro de conexão':'sincronizando…';
+  document.getElementById('slbl').textContent=s==='ok'?'sincronizado':s==='err'?'erro de conexão':'sincronizando…';
+}
+
+// ━━ HTTP helper ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function api(path, opts={}){
+  setSync('busy');
+  try{
+    const r=await fetch(path,{headers:{'Content-Type':'application/json'},...opts,body:opts.body!=null?JSON.stringify(opts.body):undefined});
+    if(!r.ok){const t=await r.text().catch(()=>r.statusText);setSync('err');throw new Error(t);}
+    const d=await r.json();setSync('ok');return d;
+  }catch(e){setSync('err');throw e;}
 }
 
 // ━━ LISTAS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadLists(silent=false){
   try{
-    lists=await sql(`
-      SELECT titulo_lista,
-             COUNT(*)::int AS total,
-             SUM(CASE WHEN quantidade<=0 THEN 1 ELSE 0 END)::int AS zerados,
-             SUM(CASE WHEN minimo>0 AND quantidade>0 AND quantidade<=minimo THEN 1 ELSE 0 END)::int AS baixos,
-             MAX(atualizado_em) AS atualizado_em
-      FROM estoque GROUP BY titulo_lista ORDER BY titulo_lista
-    `);
+    lists=await api('/api/listas');
     renderSB();
     if(active&&lists.find(l=>l.titulo_lista===active)) await loadItems(active,true);
-  }catch(e){ if(!silent) toast('Erro: '+e.message,true); }
+  }catch(e){if(!silent)toast('Erro: '+e.message,true);}
 }
 
 function renderSB(){
@@ -220,8 +163,8 @@ function renderSB(){
   if(!lists.length){c.innerHTML=`<div style="padding:20px;text-align:center;color:var(--mut);font-size:.77rem">Nenhuma lista ainda</div>`;return;}
   c.innerHTML=lists.map(l=>{
     const sub=`${l.total} iten${l.total!=1?'s':''}`
-      +(l.zerados>0?` · <span style="color:var(--red)">${l.zerados} zer.</span>`:'')
-      +(l.baixos>0?` · <span style="color:var(--org)">${l.baixos} bx</span>`:'');
+      +(+l.zerados>0?` · <span style="color:var(--red)">${l.zerados} zer.</span>`:'')
+      +(+l.baixos>0?` · <span style="color:var(--org)">${l.baixos} bx</span>`:'');
     return `<div class="li ${l.titulo_lista===active?'active':''}" onclick="selectList(${J(l.titulo_lista)})">
       <div class="li-info"><div class="li-name">${esc(l.titulo_lista)}</div><div class="li-sub">${sub}</div></div>
       <span class="li-badge">${l.total}</span>
@@ -235,7 +178,7 @@ async function selectList(name){active=name;sCol=null;sDir=1;qSearch='';renderSB
 async function delList(name){
   if(!confirm(`Excluir "${name}" e todos os itens?`))return;
   try{
-    await sql('DELETE FROM estoque WHERE titulo_lista=$1',[name]);
+    await api('/api/listas/'+encodeURIComponent(name),{method:'DELETE'});
     if(active===name){active=null;stopPoll();document.getElementById('mainArea').innerHTML=`<div class="empty"><div class="empty-big">📦</div><p>Selecione ou crie uma lista</p><button class="btn btn-acc" onclick="openModal()">+ Criar lista</button></div>`;}
     await loadLists();toast('Lista excluída');
   }catch(e){toast('Erro: '+e.message,true);}
@@ -243,28 +186,23 @@ async function delList(name){
 
 async function renameList(oldName,newName){
   if(!newName.trim()||newName===oldName)return;
-  try{await sql('UPDATE estoque SET titulo_lista=$1 WHERE titulo_lista=$2',[newName.trim(),oldName]);active=newName.trim();await loadLists();}
+  try{await api('/api/listas/'+encodeURIComponent(oldName),{method:'PATCH',body:{novoNome:newName.trim()}});active=newName.trim();await loadLists();}
   catch(e){toast('Erro ao renomear',true);}
 }
 
 // ━━ ITENS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadItems(name,silent=false){
   if(!silent)showSkeleton(name);
-  try{items=await sql('SELECT * FROM estoque WHERE titulo_lista=$1 ORDER BY nome_produto',[name]);renderMain(name);}
+  try{items=await api('/api/itens?lista='+encodeURIComponent(name));renderMain(name);}
   catch(e){if(!silent)toast('Erro: '+e.message,true);}
 }
 
 async function addItem(){
   if(!active)return;
-  const nome=g('ai_name');
-  if(!nome){document.getElementById('ai_name').focus();return;}
+  const nome=g('ai_name');if(!nome){document.getElementById('ai_name').focus();return;}
   try{
-    const rows=await sql(
-      `INSERT INTO estoque(titulo_lista,nome_produto,quantidade,unidade,minimo,codigo,nota,atualizado_em)
-       VALUES($1,$2,$3,$4,$5,$6,$7,NOW()) RETURNING *`,
-      [active,nome,parseFloat(g('ai_qty'))||0,g('ai_unit')||'un',parseFloat(g('ai_min'))||0,g('ai_code'),g('ai_note')]
-    );
-    items.push(rows[0]);
+    const row=await api('/api/itens',{method:'POST',body:{titulo_lista:active,nome_produto:nome,quantidade:parseFloat(g('ai_qty'))||0,unidade:g('ai_unit')||'un',minimo:parseFloat(g('ai_min'))||0,codigo:g('ai_code'),nota:g('ai_note')}});
+    items.push(row);
     ['ai_name','ai_code','ai_qty','ai_min','ai_unit','ai_note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('ai_name').focus();
     renderMain(active);await loadLists(true);toast('Item adicionado!');
@@ -272,10 +210,8 @@ async function addItem(){
 }
 
 async function delItem(id){
-  try{
-    await sql('DELETE FROM estoque WHERE id=$1',[id]);
-    items=items.filter(i=>i.id!=id);renderMain(active);await loadLists(true);toast('Item removido');
-  }catch(e){toast('Erro: '+e.message,true);}
+  try{await api('/api/itens/'+id,{method:'DELETE'});items=items.filter(i=>i.id!=id);renderMain(active);await loadLists(true);toast('Item removido');}
+  catch(e){toast('Erro: '+e.message,true);}
 }
 
 function scheduleUpdate(id,field,val){
@@ -283,7 +219,7 @@ function scheduleUpdate(id,field,val){
   item[field]=(field==='quantidade'||field==='minimo')?(parseFloat(val)||0):val;
   if(pending[id])clearTimeout(pending[id]);
   pending[id]=setTimeout(async()=>{
-    try{await sql(`UPDATE estoque SET ${field}=$1,atualizado_em=NOW() WHERE id=$2`,[item[field],id]);refreshBadge(id);delete pending[id];await loadLists(true);}
+    try{await api('/api/itens/'+id,{method:'PATCH',body:{[field]:item[field]}});refreshBadge(id);delete pending[id];await loadLists(true);}
     catch(e){console.error(e);}
   },700);
 }
@@ -317,7 +253,7 @@ function renderMain(name){
       <td style="text-align:right"><button class="btn-del" onclick="delItem(${item.id})">✕</button></td>
     </tr>`;
   }).join('')
-  :`<tr><td colspan="7" style="text-align:center;padding:38px;color:var(--mut)">${qSearch?`Nenhum resultado para "${esc(qSearch)}"` :'Nenhum item. Adicione abaixo ↓'}</td></tr>`;
+  :`<tr><td colspan="7" style="text-align:center;padding:38px;color:var(--mut)">${qSearch?`Nenhum resultado`:'Nenhum item. Adicione abaixo ↓'}</td></tr>`;
 
   document.getElementById('mainArea').innerHTML=`
     <div class="m-hd">
@@ -345,7 +281,7 @@ function renderMain(name){
       <input class="ai" style="flex:1;min-width:140px" id="ai_name" placeholder="Produto *" onkeydown="if(event.key==='Enter')addItem()">
       <input class="ai" style="width:95px" id="ai_code" placeholder="Código">
       <input class="ai" style="width:72px" id="ai_qty" placeholder="Qtd" type="number" min="0">
-      <input class="ai" style="width:65px" id="ai_min" placeholder="Mín" type="number" min="0" title="Qtd mínima p/ alerta laranja">
+      <input class="ai" style="width:65px" id="ai_min" placeholder="Mín" type="number" min="0" title="Qtd mínima p/ alerta">
       <input class="ai" style="width:58px" id="ai_unit" placeholder="Unid">
       <input class="ai" style="flex:1;min-width:100px" id="ai_note" placeholder="Nota">
       <button class="btn btn-grn" onclick="addItem()">+ Adicionar</button>
@@ -353,7 +289,7 @@ function renderMain(name){
 }
 
 // ━━ STATUS / STATS ━━━━━━━━━━━━━━━━━━━━━━━━━
-function status(item){if(item.quantidade<=0)return'zero';if(item.minimo>0&&item.quantidade<=item.minimo)return'low';return'ok';}
+function status(i){if(i.quantidade<=0)return'zero';if(i.minimo>0&&i.quantidade<=i.minimo)return'low';return'ok';}
 function calcStats(){let ok=0,low=0,zero=0;items.forEach(i=>{const s=status(i);s==='ok'?ok++:s==='low'?low++:zero++;});return{total:items.length,ok,low,zero};}
 function statsHTML(s){return`
   <div class="st"><span class="sd" style="background:var(--mut)"></span> Total <strong>${s.total}</strong></div>
@@ -362,7 +298,7 @@ function statsHTML(s){return`
   <div class="st"><span class="sd" style="background:var(--red)"></span> Zerado <strong>${s.zero}</strong></div>`;}
 function refreshBadge(id){const item=items.find(i=>i.id==id);if(!item)return;const el=document.getElementById('qb_'+id);if(!el)return;el.className='qbadge q-'+status(item);el.textContent=item.quantidade+' '+(item.unidade||'un');}
 
-// ━━ SORT / POLL / MODAL / CSV ━━━━━━━━━━━━━━
+// ━━ SORT / POLL / MODAL / CSV / UTILS ━━━━━━━
 function sortBy(col){sCol===col?sDir*=-1:(sCol=col,sDir=1);renderMain(active);}
 function si(col){return sCol!==col?'<span style="opacity:.3">↕</span>':sDir===1?'↑':'↓';}
 function startPoll(){stopPoll();pollId=setInterval(async()=>{if(active)await loadItems(active,true);await loadLists(true);},8000);}
@@ -372,8 +308,7 @@ function closeModal(){document.getElementById('overlay').classList.remove('open'
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 document.getElementById('mlName').addEventListener('keydown',e=>{if(e.key==='Enter')confirmModal();});
 async function confirmModal(){
-  const name=document.getElementById('mlName').value.trim();
-  if(!name){document.getElementById('mlName').focus();return;}
+  const name=document.getElementById('mlName').value.trim();if(!name){document.getElementById('mlName').focus();return;}
   closeModal();
   if(!lists.find(l=>l.titulo_lista===name))lists.push({titulo_lista:name,total:0,zerados:0,baixos:0});
   renderSB();await selectList(name);toast(`Lista "${name}" criada!`);
@@ -383,25 +318,15 @@ function exportCSV(){
   const rows=[['ID','Produto','Código','Quantidade','Unidade','Mínimo','Nota','Status']];
   items.forEach(i=>rows.push([i.id,i.nome_produto,i.codigo||'',i.quantidade,i.unidade||'un',i.minimo||0,i.nota||'',status(i)]));
   const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download=active+'.csv';a.click();
-  toast('CSV exportado!');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download=active+'.csv';a.click();toast('CSV exportado!');
 }
-
-// ━━ UTILS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function J(s){return JSON.stringify(s);}
 function g(id){const el=document.getElementById(id);return el?el.value.trim():'';}
-function toast(msg,isErr){
-  const t=document.getElementById('toast');t.textContent=msg;
-  t.style.borderColor=isErr?'var(--red)':'var(--grn)';t.style.color=isErr?'var(--red)':'var(--grn)';
-  t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
-}
+function toast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.style.borderColor=isErr?'var(--red)':'var(--grn)';t.style.color=isErr?'var(--red)':'var(--grn)';t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 
 // ━━ BOOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(async()=>{
-  try{await initDB();await loadLists();}
-  catch(e){setSync('err');toast('Falha ao conectar: '+e.message,true);}
-})();
+loadLists();
 </script>
 </body>
 </html>
