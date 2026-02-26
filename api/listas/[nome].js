@@ -1,25 +1,24 @@
-import sql, { initDB } from './_db.js';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
-  await initDB();
-  const nome = decodeURIComponent(req.query.nome);
+  try {
+    const sql = neon(process.env.TESTE);
+    const nome = decodeURIComponent(req.query.nome);
 
-  // DELETE /api/listas/[nome] — apaga lista inteira
-  if (req.method === 'DELETE') {
-    try {
+    if (req.method === 'DELETE') {
       await sql`DELETE FROM estoque WHERE titulo_lista = ${nome}`;
-      return res.json({ ok: true });
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(200).json({ ok: true });
+    }
 
-  // PATCH /api/listas/[nome] — renomeia lista
-  if (req.method === 'PATCH') {
-    try {
+    if (req.method === 'PATCH') {
       const { novoNome } = req.body;
       await sql`UPDATE estoque SET titulo_lista = ${novoNome} WHERE titulo_lista = ${nome}`;
-      return res.json({ ok: true });
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(200).json({ ok: true });
+    }
 
-  res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+  } catch (e) {
+    console.error('listas/[nome] error:', e);
+    res.status(500).json({ error: e.message });
+  }
 }

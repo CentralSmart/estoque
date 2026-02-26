@@ -1,32 +1,35 @@
-import sql, { initDB } from './_db.js';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
-  await initDB();
+  try {
+    const sql = neon(process.env.TESTE);
 
-  // GET /api/itens?lista=Nome — itens de uma lista
-  if (req.method === 'GET') {
-    try {
-      const lista = decodeURIComponent(req.query.lista);
+    if (req.method === 'GET') {
+      const lista = decodeURIComponent(req.query.lista || '');
       const rows = await sql`
-        SELECT * FROM estoque WHERE titulo_lista = ${lista} ORDER BY nome_produto
+        SELECT * FROM estoque
+        WHERE titulo_lista = ${lista}
+        ORDER BY nome_produto
       `;
-      return res.json(rows);
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(200).json(rows);
+    }
 
-  // POST /api/itens — cria item
-  if (req.method === 'POST') {
-    try {
+    if (req.method === 'POST') {
       const { titulo_lista, nome_produto, quantidade, unidade, minimo, codigo, nota } = req.body;
       const rows = await sql`
-        INSERT INTO estoque (titulo_lista, nome_produto, quantidade, unidade, minimo, codigo, nota, atualizado_em)
-        VALUES (${titulo_lista}, ${nome_produto}, ${quantidade ?? 0}, ${unidade ?? 'un'},
-                ${minimo ?? 0}, ${codigo ?? ''}, ${nota ?? ''}, NOW())
+        INSERT INTO estoque
+          (titulo_lista, nome_produto, quantidade, unidade, minimo, codigo, nota, atualizado_em)
+        VALUES
+          (${titulo_lista}, ${nome_produto}, ${quantidade ?? 0}, ${unidade ?? 'un'},
+           ${minimo ?? 0}, ${codigo ?? ''}, ${nota ?? ''}, NOW())
         RETURNING *
       `;
-      return res.json(rows[0]);
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(201).json(rows[0]);
+    }
 
-  res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+  } catch (e) {
+    console.error('itens error:', e);
+    res.status(500).json({ error: e.message });
+  }
 }

@@ -1,12 +1,11 @@
-import sql, { initDB } from './_db.js';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
-  await initDB();
-  const id = parseInt(req.query.id);
+  try {
+    const sql = neon(process.env.TESTE);
+    const id = parseInt(req.query.id);
 
-  // PATCH /api/itens/[id] — atualiza campo(s)
-  if (req.method === 'PATCH') {
-    try {
+    if (req.method === 'PATCH') {
       const { nome_produto, quantidade, unidade, minimo, codigo, nota } = req.body;
       const rows = await sql`
         UPDATE estoque SET
@@ -20,17 +19,17 @@ export default async function handler(req, res) {
         WHERE id = ${id}
         RETURNING *
       `;
-      return res.json(rows[0] ?? {});
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(200).json(rows[0] ?? {});
+    }
 
-  // DELETE /api/itens/[id] — remove item
-  if (req.method === 'DELETE') {
-    try {
+    if (req.method === 'DELETE') {
       await sql`DELETE FROM estoque WHERE id = ${id}`;
-      return res.json({ ok: true });
-    } catch (e) { return res.status(500).json({ error: e.message }); }
-  }
+      return res.status(200).json({ ok: true });
+    }
 
-  res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+  } catch (e) {
+    console.error('itens/[id] error:', e);
+    res.status(500).json({ error: e.message });
+  }
 }
