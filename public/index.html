@@ -4,195 +4,124 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estoque</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0c0c0c;
-  --surface: #161616;
-  --surface2: #202020;
-  --border: #2a2a2a;
-  --accent: #e8f542;
-  --accent2: #42f5a7;
-  --danger: #f55142;
-  --warn: #f5a742;
-  --text: #efefef;
-  --muted: #777;
-}
-
+:root{--bg:#0c0c0c;--surf:#161616;--surf2:#202020;--brd:#282828;--acc:#e8f542;--grn:#42f5a7;--red:#f55142;--org:#f5a742;--txt:#efefef;--mut:#666;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow:hidden;}
-
-/* ── Header ── */
-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 28px;border-bottom:1px solid var(--border);
-  background:var(--bg);position:relative;z-index:50;
-}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:4px;color:var(--accent);}
-.logo em{color:var(--text);font-style:normal;}
-.sync-dot{
-  display:inline-block;width:7px;height:7px;border-radius:50%;
-  background:var(--muted);margin-right:6px;transition:background .3s;
-}
-.sync-dot.on{background:var(--accent2);}
-.sync-dot.err{background:var(--danger);}
-.sync-label{font-size:.75rem;color:var(--muted);}
-
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;transition:all .15s;}
-.btn-primary{background:var(--accent);color:#0c0c0c;}
-.btn-primary:hover{background:#d4e038;}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
-.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
-.btn-danger{background:transparent;color:var(--danger);border:1px solid transparent;padding:4px 8px;}
-.btn-danger:hover{background:rgba(245,81,66,.1);border-color:var(--danger);}
-.btn-green{background:var(--accent2);color:#0c0c0c;}
-.btn-green:hover{background:#2fd490;}
-.btn-sm{padding:5px 11px;font-size:.76rem;}
-
-/* ── Layout ── */
-.app{display:flex;height:calc(100vh - 65px);}
-
-/* ── Sidebar ── */
-.sidebar{width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
-.sidebar-hd{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-.sidebar-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-.lists{flex:1;overflow-y:auto;}
-
-.list-row{
-  display:flex;align-items:center;gap:8px;padding:10px 18px;
-  cursor:pointer;border-left:3px solid transparent;transition:background .1s;
-}
-.list-row:hover{background:var(--surface);}
-.list-row.active{background:var(--surface);border-left-color:var(--accent);}
-.list-info{flex:1;min-width:0;}
-.list-name{font-size:.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.list-sub{font-size:.7rem;color:var(--muted);margin-top:2px;}
-.list-count{background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:.65rem;padding:2px 7px;border-radius:20px;flex-shrink:0;}
-.list-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:3px 5px;border-radius:4px;opacity:0;transition:opacity .1s;}
-.list-row:hover .list-del{opacity:1;}
-.list-del:hover{color:var(--danger);}
-
-/* ── Main ── */
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;height:100vh;overflow:hidden;}
+header{display:flex;align-items:center;justify-content:space-between;padding:15px 26px;border-bottom:1px solid var(--brd);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--acc);}
+.logo em{color:var(--txt);font-style:normal;}
+.hdr-r{display:flex;align-items:center;gap:12px;}
+.sync{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--mut);}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--mut);transition:background .3s;}
+.sdot.ok{background:var(--grn);}.sdot.err{background:var(--red);}.sdot.busy{background:var(--org);animation:p 1s infinite;}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:500;transition:all .13s;}
+.btn-acc{background:var(--acc);color:#0c0c0c;}.btn-acc:hover{background:#d4e038;}
+.btn-ghost{background:transparent;color:var(--mut);border:1px solid var(--brd);}.btn-ghost:hover{border-color:var(--acc);color:var(--acc);}
+.btn-grn{background:var(--grn);color:#0c0c0c;}.btn-grn:hover{background:#2fd490;}
+.btn-del{background:none;border:1px solid transparent;color:var(--red);padding:4px 8px;border-radius:5px;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif;transition:all .13s;}
+.btn-del:hover{background:rgba(245,81,66,.12);border-color:var(--red);}
+.btn-sm{padding:5px 11px;font-size:.75rem;}
+.app{display:flex;height:calc(100vh - 62px);}
+.sidebar{width:255px;border-right:1px solid var(--brd);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-hd{padding:13px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);}
+.sb-lbl{font-size:.63rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.sb-list{flex:1;overflow-y:auto;}
+.li{display:flex;align-items:center;gap:7px;padding:10px 17px;cursor:pointer;border-left:3px solid transparent;transition:background .1s;}
+.li:hover{background:var(--surf);}.li.active{background:var(--surf);border-left-color:var(--acc);}
+.li-info{flex:1;min-width:0;}
+.li-name{font-size:.87rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-sub{font-size:.68rem;color:var(--mut);margin-top:1px;}
+.li-badge{background:var(--surf2);color:var(--mut);font-family:'DM Mono',monospace;font-size:.62rem;padding:2px 7px;border-radius:20px;flex-shrink:0;}
+.li-del-btn{background:none;border:none;color:var(--mut);cursor:pointer;padding:2px 5px;border-radius:4px;opacity:0;transition:opacity .1s;font-size:.85rem;}
+.li:hover .li-del-btn{opacity:1;}.li-del-btn:hover{color:var(--red);}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.main-hd{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-shrink:0;}
-.title-wrap{flex:1;}
-.editable-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;background:none;border:none;color:var(--text);outline:none;width:100%;}
-.editable-title::placeholder{color:var(--border);}
-.list-ts{font-size:.7rem;color:var(--muted);margin-top:2px;}
-.search{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0 12px;gap:8px;transition:border-color .15s;}
-.search:focus-within{border-color:var(--accent);}
-.search input{background:none;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;padding:9px 0;outline:none;width:190px;}
-.search input::placeholder{color:var(--muted);}
-
-/* ── Stats ── */
-.stats{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.stat{display:flex;align-items:center;gap:7px;padding:9px 18px 9px 0;font-size:.75rem;color:var(--muted);}
-.stat strong{font-family:'DM Mono',monospace;color:var(--text);font-size:.85rem;}
-.dot{width:7px;height:7px;border-radius:50%;}
-.dot-ok{background:var(--accent2);}
-.dot-low{background:var(--warn);}
-.dot-zero{background:var(--danger);}
-.dot-all{background:var(--muted);}
-
-/* ── Table ── */
-.tbl-wrap{flex:1;overflow-y:auto;padding:0 28px 28px;}
-table{width:100%;border-collapse:collapse;margin-top:18px;}
-thead tr{border-bottom:2px solid var(--border);}
-th{text-align:left;padding:9px 10px;font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;user-select:none;}
-th:hover{color:var(--accent);}
-td{padding:11px 10px;font-size:.87rem;border-bottom:1px solid var(--border);vertical-align:middle;}
-tr:hover td{background:var(--surface);}
-.inline-input{background:none;border:1px solid transparent;border-radius:4px;color:var(--text);font-family:inherit;font-size:.87rem;padding:2px 6px;width:100%;outline:none;transition:border-color .12s;}
-.inline-input:focus{border-color:var(--accent);background:var(--surface2);}
-.inline-input.mono{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);}
-.qty-wrap{display:flex;align-items:center;gap:8px;}
-.qty-badge{font-family:'DM Mono',monospace;font-size:.82rem;padding:3px 10px;border-radius:4px;background:var(--surface2);white-space:nowrap;}
-.qty-ok{background:rgba(66,245,167,.1);color:var(--accent2);}
-.qty-low{background:rgba(245,167,66,.1);color:var(--warn);}
-.qty-zero{background:rgba(245,81,66,.1);color:var(--danger);}
-
-/* ── Add Row ── */
-.add-row{display:flex;gap:8px;padding:14px 28px;border-top:1px solid var(--border);background:var(--surface);align-items:center;flex-shrink:0;flex-wrap:wrap;}
-.add-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;padding:8px 11px;outline:none;transition:border-color .12s;}
-.add-input:focus{border-color:var(--accent);}
-.add-input::placeholder{color:var(--muted);}
-.w-full{flex:1;min-width:140px;}
-
-/* ── No list ── */
-.empty-main{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;color:var(--muted);text-align:center;}
-.empty-big{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:4px;color:var(--border);}
-
-/* ── Loading ── */
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-row td{text-align:center;padding:40px;color:var(--muted);}
-
-/* ── Modal ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.m-hd{padding:16px 26px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.title-area{flex:1;}
+.etitle{font-family:'Bebas Neue',sans-serif;font-size:1.65rem;letter-spacing:2px;background:none;border:none;color:var(--txt);outline:none;width:100%;}
+.etitle::placeholder{color:var(--brd);}
+.m-ts{font-size:.68rem;color:var(--mut);margin-top:2px;}
+.search{display:flex;align-items:center;background:var(--surf);border:1px solid var(--brd);border-radius:7px;padding:0 11px;gap:7px;transition:border-color .13s;}
+.search:focus-within{border-color:var(--acc);}
+.search input{background:none;border:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:8px 0;outline:none;width:175px;}
+.search input::placeholder{color:var(--mut);}
+.stats{display:flex;padding:0 26px;border-bottom:1px solid var(--brd);flex-shrink:0;}
+.st{display:flex;align-items:center;gap:6px;padding:8px 16px 8px 0;font-size:.72rem;color:var(--mut);}
+.st strong{font-family:'DM Mono',monospace;color:var(--txt);font-size:.82rem;}
+.sd{width:6px;height:6px;border-radius:50%;}
+.tbl-wrap{flex:1;overflow-y:auto;padding:0 26px 26px;}
+table{width:100%;border-collapse:collapse;margin-top:16px;}
+thead tr{border-bottom:2px solid var(--brd);}
+th{text-align:left;padding:8px 9px;font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);cursor:pointer;white-space:nowrap;user-select:none;}
+th:hover{color:var(--acc);}
+td{padding:10px 9px;font-size:.86rem;border-bottom:1px solid var(--brd);vertical-align:middle;}
+tr.irow:hover td{background:var(--surf);}
+.ii{background:none;border:1px solid transparent;border-radius:4px;color:var(--txt);font-family:inherit;font-size:.86rem;padding:2px 5px;width:100%;outline:none;transition:border-color .12s;}
+.ii:focus{border-color:var(--acc);background:var(--surf2);}
+.ii.mono{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--mut);}
+.qty-wrap{display:flex;align-items:center;gap:7px;}
+.qbadge{font-family:'DM Mono',monospace;font-size:.8rem;padding:2px 9px;border-radius:4px;white-space:nowrap;}
+.q-ok{background:rgba(66,245,167,.1);color:var(--grn);}.q-low{background:rgba(245,167,66,.1);color:var(--org);}.q-zero{background:rgba(245,81,66,.1);color:var(--red);}
+.add-row{display:flex;gap:7px;padding:12px 26px;border-top:1px solid var(--brd);background:var(--surf);align-items:center;flex-shrink:0;flex-wrap:wrap;}
+.ai{background:var(--bg);border:1px solid var(--brd);border-radius:6px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:7px 10px;outline:none;transition:border-color .12s;}
+.ai:focus{border-color:var(--acc);}.ai::placeholder{color:var(--mut);}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:13px;color:var(--mut);text-align:center;}
+.empty-big{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:4px;color:var(--brd);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .overlay.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 30px;width:370px;animation:scaleIn .18s ease;}
-@keyframes scaleIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
-.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;margin-bottom:18px;}
-.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 13px;outline:none;margin-bottom:12px;transition:border-color .12s;}
-.modal-input:focus{border-color:var(--accent);}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
-
-/* ── Toast ── */
-#toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);padding:9px 18px;border-radius:8px;font-size:.8rem;font-weight:500;display:none;z-index:999;animation:slideUp .18s ease;}
-@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-/* Scroll */
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
-
-.row-in{animation:rowIn .2s ease;}
-@keyframes rowIn{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
-
-/* Refreshing pulse */
-.refreshing{opacity:.5;pointer-events:none;}
+.modal{background:var(--surf);border:1px solid var(--brd);border-radius:12px;padding:26px 28px;width:350px;animation:scIn .18s ease;}
+@keyframes scIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:2px;margin-bottom:16px;}
+.mi{width:100%;background:var(--bg);border:1px solid var(--brd);border-radius:7px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.87rem;padding:10px 12px;outline:none;margin-bottom:11px;transition:border-color .12s;}
+.mi:focus{border-color:var(--acc);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+#toast{position:fixed;bottom:22px;right:22px;background:var(--surf);border:1px solid var(--grn);color:var(--grn);padding:8px 16px;border-radius:7px;font-size:.79rem;font-weight:500;display:none;z-index:999;animation:tUp .18s ease;}
+@keyframes tUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:rot .6s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px;}
+.row-in{animation:rIn .2s ease;}@keyframes rIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">ESTO<em>QUE</em></div>
-  <div style="display:flex;align-items:center;gap:14px;">
-    <span class="sync-label"><span class="sync-dot" id="syncDot"></span><span id="syncLabel">conectando…</span></span>
+  <div class="hdr-r">
+    <div class="sync"><span class="sdot" id="sdot"></span><span id="slbl">conectando…</span></div>
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
-    <button class="btn btn-primary" onclick="openNewListModal()">+ Nova Lista</button>
+    <button class="btn btn-acc" onclick="openModal()">+ Nova Lista</button>
   </div>
 </header>
 
 <div class="app">
   <aside class="sidebar">
-    <div class="sidebar-hd">
-      <span class="sidebar-label">Listas</span>
-      <button class="btn btn-ghost btn-sm" onclick="openNewListModal()">+</button>
+    <div class="sb-hd">
+      <span class="sb-lbl">Listas</span>
+      <button class="btn btn-ghost btn-sm" onclick="openModal()">+</button>
     </div>
-    <div class="lists" id="listsSidebar">
-      <div style="padding:20px;text-align:center;"><span class="spinner"></span></div>
+    <div class="sb-list" id="sbList">
+      <div style="padding:20px;text-align:center"><span class="spin"></span></div>
     </div>
   </aside>
-
   <div class="main" id="mainArea">
-    <div class="empty-main">
+    <div class="empty">
       <div class="empty-big">📦</div>
       <p>Selecione ou crie uma lista</p>
-      <button class="btn btn-primary" onclick="openNewListModal()">+ Criar lista</button>
+      <button class="btn btn-acc" onclick="openModal()">+ Criar lista</button>
     </div>
   </div>
 </div>
 
-<!-- Modal nova lista -->
-<div class="overlay" id="modalNewList">
+<div class="overlay" id="overlay">
   <div class="modal">
     <h3>Nova Lista</h3>
-    <input class="modal-input" id="mlName" placeholder="Nome da lista *" maxlength="60">
-    <div class="modal-actions">
+    <input class="mi" id="mlName" placeholder="Nome da lista *" maxlength="60">
+    <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="confirmNewList()">Criar</button>
+      <button class="btn btn-acc" onclick="confirmModal()">Criar</button>
     </div>
   </div>
 </div>
@@ -200,411 +129,279 @@ tr:hover td{background:var(--surface);}
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════
-// Troque pela URL do seu servidor
-const API = window.location.origin;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  NEON — conexão direta via HTTP API
+//  O Neon expõe um endpoint HTTP: https://<host>/sql
+//  que aceita { query, params } e retorna { rows }
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const NEON_HOST = 'ep-super-dream-ac7nenqt-pooler.sa-east-1.aws.neon.tech';
+const NEON_USER = 'neondb_owner';
+const NEON_PASS = 'npg_gOHBXl4eoD3P';
+const NEON_DB   = 'neondb';
 
-// ══════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════
-let lists = [];
-let activeList = null;   // nome da lista
-let items = [];
-let sortCol = null, sortDir = 1;
-let searchQ = '';
-let pollTimer = null;
-let saving = {};         // id => pending patch
+const SQL_URL  = `https://${NEON_HOST}/sql`;
+const SQL_AUTH = 'Basic ' + btoa(`${NEON_USER}:${NEON_PASS}`);
+const SQL_CONN = `postgresql://${NEON_USER}:${NEON_PASS}@${NEON_HOST}/${NEON_DB}?sslmode=require`;
 
-// ══════════════════════════════════════
-//  SYNC INDICATOR
-// ══════════════════════════════════════
-function setSync(state) { // 'on' | 'off' | 'err'
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  dot.className = 'sync-dot ' + (state === 'on' ? 'on' : state === 'err' ? 'err' : '');
-  lbl.textContent = state === 'on' ? 'sincronizado' : state === 'err' ? 'erro de conexão' : 'sincronizando…';
-}
-
-// ══════════════════════════════════════
-//  API HELPERS
-// ══════════════════════════════════════
-async function apiFetch(path, opts = {}) {
-  setSync('off');
-  try {
-    const r = await fetch(API + path, {
-      headers: { 'Content-Type': 'application/json' },
-      ...opts,
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    });
-    if (!r.ok) throw new Error(await r.text());
-    const data = await r.json();
-    setSync('on');
-    return data;
-  } catch (e) {
+async function sql(query, params = []) {
+  setSync('busy');
+  const res = await fetch(SQL_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': SQL_AUTH,
+      'Neon-Connection-String': SQL_CONN,
+    },
+    body: JSON.stringify({ query, params }),
+  });
+  if (!res.ok) {
+    const err = await res.text().catch(() => res.statusText);
     setSync('err');
-    throw e;
+    throw new Error(`[${res.status}] ${err}`);
   }
+  const data = await res.json();
+  setSync('ok');
+  return data.rows ?? [];
 }
 
-// ══════════════════════════════════════
-//  LISTS
-// ══════════════════════════════════════
-async function loadLists() {
-  try {
-    lists = await apiFetch('/api/listas');
-    renderSidebar();
-    // Se lista ativa ainda existe, recarrega itens silenciosamente
-    if (activeList && lists.find(l => l.titulo_lista === activeList)) {
-      await loadItems(activeList, true);
-    }
-  } catch(e) { console.error(e); }
+async function initDB() {
+  await sql(`
+    CREATE TABLE IF NOT EXISTS estoque (
+      id            SERIAL PRIMARY KEY,
+      titulo_lista  VARCHAR(255) NOT NULL,
+      nome_produto  VARCHAR(255) NOT NULL,
+      quantidade    INTEGER      NOT NULL DEFAULT 0,
+      unidade       VARCHAR(50)           DEFAULT 'un',
+      minimo        INTEGER               DEFAULT 0,
+      codigo        VARCHAR(100)          DEFAULT '',
+      nota          TEXT                  DEFAULT '',
+      criado_em     TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
+      atualizado_em TIMESTAMP             DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  for (const c of [
+    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS unidade VARCHAR(50) DEFAULT 'un'`,
+    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS minimo INTEGER DEFAULT 0`,
+    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS codigo VARCHAR(100) DEFAULT ''`,
+    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS nota TEXT DEFAULT ''`,
+    `ALTER TABLE estoque ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP`,
+  ]) await sql(c).catch(()=>{});
 }
 
-function renderSidebar() {
-  const c = document.getElementById('listsSidebar');
-  if (!lists.length) {
-    c.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:.78rem;">Nenhuma lista ainda</div>`;
-    return;
-  }
-  c.innerHTML = lists.map(l => {
-    const sub = `${l.total} iten${l.total!=1?'s':''}` +
-      (l.zerados>0 ? ` · <span style="color:var(--danger)">${l.zerados} zer.</span>` : '') +
-      (l.baixos>0  ? ` · <span style="color:var(--warn)">${l.baixos} baixo</span>` : '');
-    return `<div class="list-row ${l.titulo_lista===activeList?'active':''}" onclick="selectList('${esc(l.titulo_lista)}')">
-      <div class="list-info">
-        <div class="list-name">${esc(l.titulo_lista)}</div>
-        <div class="list-sub">${sub}</div>
-      </div>
-      <span class="list-count">${l.total}</span>
-      <button class="list-del" onclick="event.stopPropagation();deleteList('${esc(l.titulo_lista)}')" title="Excluir lista">✕</button>
+// ━━ STATE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let lists=[], active=null, items=[], sCol=null, sDir=1, qSearch='', pollId=null;
+const pending={};
+
+// ━━ SYNC DOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function setSync(s){
+  document.getElementById('sdot').className='sdot '+s;
+  document.getElementById('slbl').textContent=
+    s==='ok'?'sincronizado':s==='err'?'erro de conexão':'sincronizando…';
+}
+
+// ━━ LISTAS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadLists(silent=false){
+  try{
+    lists=await sql(`
+      SELECT titulo_lista,
+             COUNT(*)::int AS total,
+             SUM(CASE WHEN quantidade<=0 THEN 1 ELSE 0 END)::int AS zerados,
+             SUM(CASE WHEN minimo>0 AND quantidade>0 AND quantidade<=minimo THEN 1 ELSE 0 END)::int AS baixos,
+             MAX(atualizado_em) AS atualizado_em
+      FROM estoque GROUP BY titulo_lista ORDER BY titulo_lista
+    `);
+    renderSB();
+    if(active&&lists.find(l=>l.titulo_lista===active)) await loadItems(active,true);
+  }catch(e){ if(!silent) toast('Erro: '+e.message,true); }
+}
+
+function renderSB(){
+  const c=document.getElementById('sbList');
+  if(!lists.length){c.innerHTML=`<div style="padding:20px;text-align:center;color:var(--mut);font-size:.77rem">Nenhuma lista ainda</div>`;return;}
+  c.innerHTML=lists.map(l=>{
+    const sub=`${l.total} iten${l.total!=1?'s':''}`
+      +(l.zerados>0?` · <span style="color:var(--red)">${l.zerados} zer.</span>`:'')
+      +(l.baixos>0?` · <span style="color:var(--org)">${l.baixos} bx</span>`:'');
+    return `<div class="li ${l.titulo_lista===active?'active':''}" onclick="selectList(${J(l.titulo_lista)})">
+      <div class="li-info"><div class="li-name">${esc(l.titulo_lista)}</div><div class="li-sub">${sub}</div></div>
+      <span class="li-badge">${l.total}</span>
+      <button class="li-del-btn" onclick="event.stopPropagation();delList(${J(l.titulo_lista)})">✕</button>
     </div>`;
   }).join('');
 }
 
-async function selectList(name) {
-  activeList = name;
-  sortCol = null; sortDir = 1; searchQ = '';
-  renderSidebar();
-  await loadItems(name);
-  startPolling();
+async function selectList(name){active=name;sCol=null;sDir=1;qSearch='';renderSB();await loadItems(name);startPoll();}
+
+async function delList(name){
+  if(!confirm(`Excluir "${name}" e todos os itens?`))return;
+  try{
+    await sql('DELETE FROM estoque WHERE titulo_lista=$1',[name]);
+    if(active===name){active=null;stopPoll();document.getElementById('mainArea').innerHTML=`<div class="empty"><div class="empty-big">📦</div><p>Selecione ou crie uma lista</p><button class="btn btn-acc" onclick="openModal()">+ Criar lista</button></div>`;}
+    await loadLists();toast('Lista excluída');
+  }catch(e){toast('Erro: '+e.message,true);}
 }
 
-async function deleteList(name) {
-  if (!confirm(`Excluir a lista "${name}" e todos os seus itens?`)) return;
-  await apiFetch(`/api/listas/${encodeURIComponent(name)}`, { method: 'DELETE' });
-  if (activeList === name) {
-    activeList = null;
-    stopPolling();
-    document.getElementById('mainArea').innerHTML = `
-      <div class="empty-main">
-        <div class="empty-big">📦</div>
-        <p>Selecione ou crie uma lista</p>
-        <button class="btn btn-primary" onclick="openNewListModal()">+ Criar lista</button>
-      </div>`;
-  }
-  await loadLists();
-  toast('Lista excluída');
+async function renameList(oldName,newName){
+  if(!newName.trim()||newName===oldName)return;
+  try{await sql('UPDATE estoque SET titulo_lista=$1 WHERE titulo_lista=$2',[newName.trim(),oldName]);active=newName.trim();await loadLists();}
+  catch(e){toast('Erro ao renomear',true);}
 }
 
-async function renameList(oldName, newName) {
-  if (!newName || newName === oldName) return;
-  await apiFetch(`/api/listas/${encodeURIComponent(oldName)}`, {
-    method: 'PATCH', body: { novoNome: newName }
-  });
-  activeList = newName;
-  await loadLists();
+// ━━ ITENS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadItems(name,silent=false){
+  if(!silent)showSkeleton(name);
+  try{items=await sql('SELECT * FROM estoque WHERE titulo_lista=$1 ORDER BY nome_produto',[name]);renderMain(name);}
+  catch(e){if(!silent)toast('Erro: '+e.message,true);}
 }
 
-// ══════════════════════════════════════
-//  ITEMS
-// ══════════════════════════════════════
-async function loadItems(listName, silent = false) {
-  if (!silent) showMainSkeleton(listName);
-  try {
-    const data = await apiFetch(`/api/itens/${encodeURIComponent(listName)}`);
-    items = data;
-    renderMain(listName);
-  } catch(e) { console.error(e); }
-}
-
-async function addItem() {
-  if (!activeList) return;
-  const name = v('ai_name');
-  if (!name) { focus('ai_name'); return; }
-  const item = {
-    titulo_lista: activeList,
-    nome_produto: name,
-    quantidade: parseFloat(v('ai_qty')) || 0,
-    unidade: v('ai_unit') || 'un',
-    minimo: parseFloat(v('ai_min')) || 0,
-    codigo: v('ai_code'),
-    nota: v('ai_note'),
-  };
-  try {
-    const created = await apiFetch('/api/itens', { method: 'POST', body: item });
-    items.push(created);
-    ['ai_name','ai_code','ai_qty','ai_min','ai_unit','ai_note'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    focus('ai_name');
-    renderMain(activeList);
-    await loadLists();
-    toast('Item adicionado!');
-  } catch(e) { toast('Erro ao adicionar: '+e.message, true); }
-}
-
-async function deleteItem(id) {
-  try {
-    await apiFetch(`/api/itens/${id}`, { method: 'DELETE' });
-    items = items.filter(i => i.id != id);
-    renderMain(activeList);
-    await loadLists();
-    toast('Item removido');
-  } catch(e) { toast('Erro: '+e.message, true); }
-}
-
-// Debounced patch
-function scheduleUpdate(id, field, val) {
-  const item = items.find(i => i.id == id); if (!item) return;
-  item[field] = (field==='quantidade'||field==='minimo') ? (parseFloat(val)||0) : val;
-
-  if (saving[id]) clearTimeout(saving[id]);
-  saving[id] = setTimeout(async () => {
-    try {
-      await apiFetch(`/api/itens/${id}`, { method: 'PATCH', body: { [field]: item[field] } });
-      updateBadge(id);
-      delete saving[id];
-      await loadLists();
-    } catch(e) { console.error(e); }
-  }, 600);
-}
-
-// ══════════════════════════════════════
-//  RENDER MAIN
-// ══════════════════════════════════════
-function showMainSkeleton(listName) {
-  document.getElementById('mainArea').innerHTML = `
-    <div class="main-hd">
-      <div class="title-wrap"><div class="editable-title" style="color:var(--muted)">${esc(listName)}</div></div>
-    </div>
-    <div class="tbl-wrap" style="display:flex;align-items:center;justify-content:center;height:100%;">
-      <span class="spinner"></span>
-    </div>`;
-}
-
-function renderMain(listName) {
-  if (!listName) return;
-  const listMeta = lists.find(l => l.titulo_lista === listName) || {};
-  const ts = listMeta.atualizado_em ? new Date(listMeta.atualizado_em).toLocaleString('pt-BR') : '—';
-  const stats = calcStats();
-
-  let filtered = [...items];
-  if (searchQ) {
-    const q = searchQ.toLowerCase();
-    filtered = filtered.filter(i =>
-      (i.nome_produto||'').toLowerCase().includes(q) ||
-      (i.codigo||'').toLowerCase().includes(q) ||
-      (i.nota||'').toLowerCase().includes(q)
+async function addItem(){
+  if(!active)return;
+  const nome=g('ai_name');
+  if(!nome){document.getElementById('ai_name').focus();return;}
+  try{
+    const rows=await sql(
+      `INSERT INTO estoque(titulo_lista,nome_produto,quantidade,unidade,minimo,codigo,nota,atualizado_em)
+       VALUES($1,$2,$3,$4,$5,$6,$7,NOW()) RETURNING *`,
+      [active,nome,parseFloat(g('ai_qty'))||0,g('ai_unit')||'un',parseFloat(g('ai_min'))||0,g('ai_code'),g('ai_note')]
     );
-  }
-  if (sortCol) {
-    filtered.sort((a,b) => {
-      let va = a[sortCol]||'', vb = b[sortCol]||'';
-      if (typeof va === 'string') va = va.toLowerCase();
-      if (typeof vb === 'string') vb = vb.toLowerCase();
-      return va < vb ? -sortDir : va > vb ? sortDir : 0;
-    });
-  }
+    items.push(rows[0]);
+    ['ai_name','ai_code','ai_qty','ai_min','ai_unit','ai_note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('ai_name').focus();
+    renderMain(active);await loadLists(true);toast('Item adicionado!');
+  }catch(e){toast('Erro: '+e.message,true);}
+}
 
-  const rows = filtered.length ? filtered.map(renderRow).join('') :
-    `<tr><td colspan="7" style="text-align:center;padding:38px;color:var(--muted);">
-      ${searchQ ? 'Nenhum resultado para "'+esc(searchQ)+'"' : 'Nenhum item ainda. Adicione abaixo ↓'}
-    </td></tr>`;
+async function delItem(id){
+  try{
+    await sql('DELETE FROM estoque WHERE id=$1',[id]);
+    items=items.filter(i=>i.id!=id);renderMain(active);await loadLists(true);toast('Item removido');
+  }catch(e){toast('Erro: '+e.message,true);}
+}
 
-  document.getElementById('mainArea').innerHTML = `
-    <div class="main-hd">
-      <div class="title-wrap">
-        <input class="editable-title" value="${esc(listName)}" placeholder="Nome da lista"
-          onblur="renameList('${esc(listName)}',this.value)" maxlength="60">
-        <div class="list-ts">Atualizado: ${ts}</div>
+function scheduleUpdate(id,field,val){
+  const item=items.find(i=>i.id==id);if(!item)return;
+  item[field]=(field==='quantidade'||field==='minimo')?(parseFloat(val)||0):val;
+  if(pending[id])clearTimeout(pending[id]);
+  pending[id]=setTimeout(async()=>{
+    try{await sql(`UPDATE estoque SET ${field}=$1,atualizado_em=NOW() WHERE id=$2`,[item[field],id]);refreshBadge(id);delete pending[id];await loadLists(true);}
+    catch(e){console.error(e);}
+  },700);
+}
+
+// ━━ RENDER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showSkeleton(name){
+  document.getElementById('mainArea').innerHTML=`<div class="m-hd"><div class="title-area"><div class="etitle" style="color:var(--mut)">${esc(name)}</div></div></div><div style="display:flex;align-items:center;justify-content:center;height:100%"><span class="spin"></span></div>`;
+}
+
+function renderMain(name){
+  const meta=lists.find(l=>l.titulo_lista===name)||{};
+  const ts=meta.atualizado_em?new Date(meta.atualizado_em).toLocaleString('pt-BR'):'—';
+  const st=calcStats();
+  let vis=[...items];
+  if(qSearch){const q=qSearch.toLowerCase();vis=vis.filter(i=>(i.nome_produto||'').toLowerCase().includes(q)||(i.codigo||'').toLowerCase().includes(q)||(i.nota||'').toLowerCase().includes(q));}
+  if(sCol){vis.sort((a,b)=>{let va=a[sCol]??'',vb=b[sCol]??'';if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase();}return va<vb?-sDir:va>vb?sDir:0;});}
+
+  const rows=vis.length?vis.map(item=>{
+    const s=status(item);
+    return `<tr class="irow row-in">
+      <td><input class="ii" value="${esc(item.nome_produto)}" onblur="scheduleUpdate(${item.id},'nome_produto',this.value)"></td>
+      <td><input class="ii mono" value="${esc(item.codigo||'')}" style="width:90px" onblur="scheduleUpdate(${item.id},'codigo',this.value)"></td>
+      <td><div class="qty-wrap">
+        <input class="ii mono" type="number" min="0" value="${item.quantidade}" style="width:68px;text-align:center"
+          onblur="scheduleUpdate(${item.id},'quantidade',this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+        <span class="qbadge q-${s}" id="qb_${item.id}">${item.quantidade} ${esc(item.unidade||'un')}</span>
+      </div></td>
+      <td><input class="ii" value="${esc(item.unidade||'un')}" style="width:52px" onblur="scheduleUpdate(${item.id},'unidade',this.value)"></td>
+      <td><input class="ii mono" type="number" min="0" value="${item.minimo||0}" style="width:58px;text-align:center" onblur="scheduleUpdate(${item.id},'minimo',this.value)"></td>
+      <td><input class="ii" value="${esc(item.nota||'')}" placeholder="—" onblur="scheduleUpdate(${item.id},'nota',this.value)"></td>
+      <td style="text-align:right"><button class="btn-del" onclick="delItem(${item.id})">✕</button></td>
+    </tr>`;
+  }).join('')
+  :`<tr><td colspan="7" style="text-align:center;padding:38px;color:var(--mut)">${qSearch?`Nenhum resultado para "${esc(qSearch)}"` :'Nenhum item. Adicione abaixo ↓'}</td></tr>`;
+
+  document.getElementById('mainArea').innerHTML=`
+    <div class="m-hd">
+      <div class="title-area">
+        <input class="etitle" value="${esc(name)}" placeholder="Nome" onblur="renameList(${J(name)},this.value)" maxlength="60">
+        <div class="m-ts">Atualizado: ${ts}</div>
       </div>
-      <div class="search">
-        <span style="color:var(--muted);font-size:.85rem;">🔍</span>
-        <input placeholder="Buscar…" value="${esc(searchQ)}" oninput="searchQ=this.value;renderMain('${esc(listName)}')">
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="loadItems('${esc(listName)}')" title="Recarregar">↻</button>
+      <div class="search"><span style="color:var(--mut)">🔍</span><input placeholder="Buscar…" value="${esc(qSearch)}" oninput="qSearch=this.value;renderMain(${J(name)})"></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadItems(${J(name)})" title="Recarregar">↻</button>
     </div>
-    <div class="stats">${statsHTML(stats)}</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th onclick="sortBy('nome_produto','${esc(listName)}')">Produto ${si('nome_produto')}</th>
-          <th onclick="sortBy('codigo','${esc(listName)}')">Código ${si('codigo')}</th>
-          <th onclick="sortBy('quantidade','${esc(listName)}')">Quantidade ${si('quantidade')}</th>
-          <th>Unid.</th>
-          <th onclick="sortBy('minimo','${esc(listName)}')">Mínimo ${si('minimo')}</th>
-          <th>Nota</th>
-          <th></th>
-        </tr></thead>
-        <tbody id="tBody">${rows}</tbody>
-      </table>
-    </div>
+    <div class="stats">${statsHTML(st)}</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th onclick="sortBy('nome_produto')">Produto ${si('nome_produto')}</th>
+        <th onclick="sortBy('codigo')">Código ${si('codigo')}</th>
+        <th onclick="sortBy('quantidade')">Quantidade ${si('quantidade')}</th>
+        <th>Unid.</th>
+        <th onclick="sortBy('minimo')">Mínimo ${si('minimo')}</th>
+        <th>Nota</th>
+        <th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
     <div class="add-row">
-      <input class="add-input w-full" id="ai_name" placeholder="Nome do produto *" onkeydown="if(event.key==='Enter')addItem()">
-      <input class="add-input" style="width:100px" id="ai_code" placeholder="Código">
-      <input class="add-input" style="width:75px" id="ai_qty" placeholder="Qtd" type="number" min="0">
-      <input class="add-input" style="width:68px" id="ai_min" placeholder="Mín" type="number" min="0" title="Mínimo">
-      <input class="add-input" style="width:60px" id="ai_unit" placeholder="Unid">
-      <input class="add-input w-full" id="ai_note" placeholder="Nota">
-      <button class="btn btn-green" onclick="addItem()">+ Adicionar</button>
+      <input class="ai" style="flex:1;min-width:140px" id="ai_name" placeholder="Produto *" onkeydown="if(event.key==='Enter')addItem()">
+      <input class="ai" style="width:95px" id="ai_code" placeholder="Código">
+      <input class="ai" style="width:72px" id="ai_qty" placeholder="Qtd" type="number" min="0">
+      <input class="ai" style="width:65px" id="ai_min" placeholder="Mín" type="number" min="0" title="Qtd mínima p/ alerta laranja">
+      <input class="ai" style="width:58px" id="ai_unit" placeholder="Unid">
+      <input class="ai" style="flex:1;min-width:100px" id="ai_note" placeholder="Nota">
+      <button class="btn btn-grn" onclick="addItem()">+ Adicionar</button>
     </div>`;
 }
 
-function renderRow(item) {
-  const st = status(item);
-  return `<tr class="row-in" data-id="${item.id}">
-    <td><input class="inline-input" value="${esc(item.nome_produto)}" onblur="scheduleUpdate(${item.id},'nome_produto',this.value)"></td>
-    <td><input class="inline-input mono" value="${esc(item.codigo||'')}" onblur="scheduleUpdate(${item.id},'codigo',this.value)" style="width:90px"></td>
-    <td>
-      <div class="qty-wrap">
-        <input class="inline-input mono" type="number" min="0" value="${item.quantidade}" style="width:70px;text-align:center"
-          onblur="scheduleUpdate(${item.id},'quantidade',this.value)"
-          onkeydown="if(event.key==='Enter')this.blur()">
-        <span class="qty-badge qty-${st}" id="qb_${item.id}">${item.quantidade} ${esc(item.unidade||'un')}</span>
-      </div>
-    </td>
-    <td><input class="inline-input" value="${esc(item.unidade||'un')}" style="width:54px" onblur="scheduleUpdate(${item.id},'unidade',this.value)"></td>
-    <td><input class="inline-input mono" type="number" min="0" value="${item.minimo||0}" style="width:60px;text-align:center" onblur="scheduleUpdate(${item.id},'minimo',this.value)"></td>
-    <td><input class="inline-input" value="${esc(item.nota||'')}" onblur="scheduleUpdate(${item.id},'nota',this.value)" placeholder="—"></td>
-    <td style="text-align:right">
-      <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">✕</button>
-    </td>
-  </tr>`;
-}
+// ━━ STATUS / STATS ━━━━━━━━━━━━━━━━━━━━━━━━━
+function status(item){if(item.quantidade<=0)return'zero';if(item.minimo>0&&item.quantidade<=item.minimo)return'low';return'ok';}
+function calcStats(){let ok=0,low=0,zero=0;items.forEach(i=>{const s=status(i);s==='ok'?ok++:s==='low'?low++:zero++;});return{total:items.length,ok,low,zero};}
+function statsHTML(s){return`
+  <div class="st"><span class="sd" style="background:var(--mut)"></span> Total <strong>${s.total}</strong></div>
+  <div class="st"><span class="sd" style="background:var(--grn)"></span> OK <strong>${s.ok}</strong></div>
+  <div class="st"><span class="sd" style="background:var(--org)"></span> Baixo <strong>${s.low}</strong></div>
+  <div class="st"><span class="sd" style="background:var(--red)"></span> Zerado <strong>${s.zero}</strong></div>`;}
+function refreshBadge(id){const item=items.find(i=>i.id==id);if(!item)return;const el=document.getElementById('qb_'+id);if(!el)return;el.className='qbadge q-'+status(item);el.textContent=item.quantidade+' '+(item.unidade||'un');}
 
-// ══════════════════════════════════════
-//  STATS / STATUS
-// ══════════════════════════════════════
-function status(item) {
-  if (item.quantidade <= 0) return 'zero';
-  if (item.minimo > 0 && item.quantidade <= item.minimo) return 'low';
-  return 'ok';
-}
-
-function calcStats() {
-  let ok=0, low=0, zero=0;
-  items.forEach(i => { const s=status(i); if(s==='ok')ok++; else if(s==='low')low++; else zero++; });
-  return { total: items.length, ok, low, zero };
-}
-
-function statsHTML(s) {
-  return `
-    <div class="stat"><span class="dot dot-all"></span> Total <strong>${s.total}</strong></div>
-    <div class="stat"><span class="dot dot-ok"></span> OK <strong>${s.ok}</strong></div>
-    <div class="stat"><span class="dot dot-low"></span> Baixo <strong>${s.low}</strong></div>
-    <div class="stat"><span class="dot dot-zero"></span> Zerado <strong>${s.zero}</strong></div>`;
-}
-
-function updateBadge(id) {
-  const item = items.find(i => i.id == id); if (!item) return;
-  const el = document.getElementById('qb_'+id); if (!el) return;
-  const st = status(item);
-  el.className = 'qty-badge qty-'+st;
-  el.textContent = item.quantidade + ' ' + (item.unidade||'un');
-}
-
-// ══════════════════════════════════════
-//  SORT
-// ══════════════════════════════════════
-function sortBy(col, listName) {
-  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
-  renderMain(listName);
-}
-function si(col) {
-  if (sortCol !== col) return '<span style="opacity:.35">↕</span>';
-  return sortDir === 1 ? '↑' : '↓';
-}
-
-// ══════════════════════════════════════
-//  POLLING (atualiza a cada 8s)
-// ══════════════════════════════════════
-function startPolling() {
-  stopPolling();
-  pollTimer = setInterval(async () => {
-    if (activeList) await loadItems(activeList, true);
-    await loadLists();
-  }, 8000);
-}
-
-function stopPolling() {
-  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-}
-
-// ══════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════
-function openNewListModal() {
-  document.getElementById('modalNewList').classList.add('open');
-  setTimeout(() => document.getElementById('mlName').focus(), 50);
-}
-function closeModal() {
-  document.getElementById('modalNewList').classList.remove('open');
-  document.getElementById('mlName').value = '';
-}
-document.getElementById('modalNewList').addEventListener('click', e => { if(e.target===e.currentTarget)closeModal(); });
-document.getElementById('mlName').addEventListener('keydown', e => { if(e.key==='Enter') confirmNewList(); });
-
-async function confirmNewList() {
-  const name = document.getElementById('mlName').value.trim();
-  if (!name) { document.getElementById('mlName').focus(); return; }
-  // Cria inserindo um placeholder invisível — ou só seleciona a lista nova
-  // Na verdade, lista existe assim que tiver o primeiro item. Selecionamos ela vazia.
+// ━━ SORT / POLL / MODAL / CSV ━━━━━━━━━━━━━━
+function sortBy(col){sCol===col?sDir*=-1:(sCol=col,sDir=1);renderMain(active);}
+function si(col){return sCol!==col?'<span style="opacity:.3">↕</span>':sDir===1?'↑':'↓';}
+function startPoll(){stopPoll();pollId=setInterval(async()=>{if(active)await loadItems(active,true);await loadLists(true);},8000);}
+function stopPoll(){if(pollId){clearInterval(pollId);pollId=null;}}
+function openModal(){document.getElementById('overlay').classList.add('open');setTimeout(()=>document.getElementById('mlName').focus(),60);}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.getElementById('mlName').value='';}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('mlName').addEventListener('keydown',e=>{if(e.key==='Enter')confirmModal();});
+async function confirmModal(){
+  const name=document.getElementById('mlName').value.trim();
+  if(!name){document.getElementById('mlName').focus();return;}
   closeModal();
-  lists.push({ titulo_lista: name, total: 0, zerados: 0, baixos: 0 });
-  renderSidebar();
-  await selectList(name);
-  toast('Lista criada! Adicione itens abaixo.');
+  if(!lists.find(l=>l.titulo_lista===name))lists.push({titulo_lista:name,total:0,zerados:0,baixos:0});
+  renderSB();await selectList(name);toast(`Lista "${name}" criada!`);
 }
-
-// ══════════════════════════════════════
-//  EXPORT CSV
-// ══════════════════════════════════════
-function exportCSV() {
-  if (!activeList || !items.length) { toast('Nenhum item para exportar', true); return; }
-  const rows = [['ID','Produto','Código','Quantidade','Unidade','Mínimo','Nota','Status','Criado em']];
-  items.forEach(i => rows.push([
-    i.id, i.nome_produto, i.codigo||'', i.quantidade, i.unidade||'un',
-    i.minimo||0, i.nota||'', status(i),
-    new Date(i.criado_em).toLocaleString('pt-BR')
-  ]));
-  const csv = rows.map(r => r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
-  a.download = activeList + '.csv';
-  a.click();
+function exportCSV(){
+  if(!active||!items.length){toast('Nenhum item para exportar',true);return;}
+  const rows=[['ID','Produto','Código','Quantidade','Unidade','Mínimo','Nota','Status']];
+  items.forEach(i=>rows.push([i.id,i.nome_produto,i.codigo||'',i.quantidade,i.unidade||'un',i.minimo||0,i.nota||'',status(i)]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download=active+'.csv';a.click();
   toast('CSV exportado!');
 }
 
-// ══════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
-function focus(id){ const el=document.getElementById(id); if(el) el.focus(); }
-function toast(msg, isErr) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = isErr ? 'var(--danger)' : 'var(--accent2)';
-  t.style.color = isErr ? 'var(--danger)' : 'var(--accent2)';
-  t.style.display = 'block';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.style.display='none', 2800);
+// ━━ UTILS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function J(s){return JSON.stringify(s);}
+function g(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function toast(msg,isErr){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.style.borderColor=isErr?'var(--red)':'var(--grn)';t.style.color=isErr?'var(--red)':'var(--grn)';
+  t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
 }
 
-// ══════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════
-loadLists();
+// ━━ BOOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(async()=>{
+  try{await initDB();await loadLists();}
+  catch(e){setSync('err');toast('Falha ao conectar: '+e.message,true);}
+})();
 </script>
 </body>
 </html>
